@@ -6,14 +6,17 @@ from flask import Flask, request
 from telegram.ext import Updater, CommandHandler, CallbackContext
 import threading
 import os
-
-
+import random
+import string
 
 # --- Налаштування ---
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")  # Твій Telegram ID
 TRACKING_URL = 'https://www.ups.com/track?loc=en_US&tracknum=1ZA0Y3156822543252'
-THUM_IO_URL = f'https://image.thum.io/get/width/1000/{TRACKING_URL}'
+# Додаємо параметр для уникальності URL
+def generate_unique_url():
+    random_suffix = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    return f'https://image.thum.io/get/width/1000/{TRACKING_URL}?{random_suffix}'
 
 last_status = ""
 
@@ -35,7 +38,7 @@ def get_tracking_status():
 
 # Завантаження фото для трекінгу
 def get_tracking_photo():
-    url = THUM_IO_URL
+    url = generate_unique_url()
     response = requests.get(url)
 
     # Перевірка, чи є зображення в відповіді
